@@ -5,7 +5,7 @@ import numpy as np
 
 class dataset(Dataset) : 
 
-    CHARS = '0123456789abcdefghijklmnopqrstuvwxyz'
+    CHARS = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
     CHARS_to_index = {c: i+1 for i,c in enumerate(CHARS)}
     index_to_CHARS = {i: c for c,i in CHARS_to_index.items()}
 
@@ -14,12 +14,11 @@ class dataset(Dataset) :
         self.image_width = image_width
         self.text_column = text_column
         self.data = load_dataset(dataset_name, split=f"{split_dataset}[:{limit}]")
-        #self.data = load_dataset("priyank-m/MJSynth_text_recognition", split= f"{split_dataset}[:{limit}]")
 
     def __getitem__(self, index):
         sample = self.data[index]
         image = sample['image'].convert('L') # Grayscales the image 
-        text = sample[self.text_column].lower()
+        text = sample[self.text_column]
 
         image = image.resize((self.image_width, self.image_height))
         image = np.array(image, dtype=np.float32)
@@ -55,8 +54,8 @@ def _get_dataloader() :
 
     valid_dataset = ConcatDataset([mjsynth_valid, iiit5k_test])
 
-# changed num_workers and batch size and pin memmory 
-    train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True, collate_fn=collate_fn, num_workers=4)
+# changed num_workers and batch size and pin memory 
+    train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True, collate_fn=collate_fn, num_workers=4, pin_memory=True)
     valid_loader = DataLoader(valid_dataset, batch_size=32, shuffle=False, collate_fn=collate_fn)
 
     return train_loader, valid_loader 

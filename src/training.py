@@ -6,22 +6,23 @@ import torch.nn.functional as F
 from dataset import _get_dataloader
 import os 
 import time 
+
 start = time.time()
 def main():
 
     # consider setting learning rate conditionally 
 
     # Creating an instance of model
-    CRNN = model(in_channels=1, num_classes=37)
+    CRNN = model(in_channels=1, num_classes=63)
 
     criterion = nn.CTCLoss(zero_infinity=True)
     # The optimiser updates model weights using gradients computed by the loss.backward() in training loop 
     # Adam converges faster and requires less manual tuning of the learning parameter than RMSprop 
-    optimiser = optim.Adam(CRNN.parameters(), lr=0.0001)
+    optimiser = optim.Adam(CRNN.parameters(), lr=0.001)
 
     # Learning rate scheduler 
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimiser, mode='min', factor=0.5, patience=1
+        optimiser, mode='min', factor=0.5, patience=3
     )
 
     checkpoints_dir = 'checkpoints'
@@ -38,8 +39,7 @@ def main():
 
     i = 0 
     valid_interval = 500
-    epochs = 20
-
+    epochs = 30
 
     # Periodic validation checks
     # to track accuracy and can be used to decide when to save checkpoints
@@ -83,12 +83,43 @@ def main():
     checkpoint_path = os.path.join(checkpoints_dir, 'crnn.pt')
 
     if os.path.exists(checkpoint_path): 
+        checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
+        checkpoint_state = checkpoint['model_state_dict']
+        model_state = CRNN.state_dict()
+
+
+        filtered_state = { 
+            k : v for k,v in checkpoint_state.items()
+            if k in model_state and v.shape == model_state[k].shape
+        }
+
+        model_state.update(filtered_state)
+        CRNN.load_state_dict(model_state)
+
+        skipped = checkpoint_state.keys() - filtered_state.keys()
+
+        if skipped: 
+            best_val_loss = float('inf')
+            print('Resumed from checkpoint with new final layer, resetting loss value')
+        else: 
+            best_val_loss = checkpoint['val_loss']
+            print(f'Resumed from checkpoint, best_val_loss={best_val_loss:.4f}')
+        
+    else: 
+        best_val_loss = float('inf')
+        print(f'No checkpoint found')
+        
+    """
+
+    if os.path.exists(checkpoint_path): 
         checkpoint = torch.load(checkpoint_path, map_location=device)
-        CRNN.load_state_dict(checkpoint['model_state_dict'])
+        CRNN.load_state_dict(checkpoint['model_state_dict'], strict=False)
         best_val_loss = checkpoint['val_loss']
         print(f'Resumed from checkpoint, best_val_loss={best_val_loss:.4f}')
     else : 
         best_val_loss = float('inf') # to track the best score seen so far - 0.4
+    
+        """
 
     for epoch in range(epochs) : 
         for images, targets, target_lengths in train_loader: 

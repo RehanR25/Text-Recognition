@@ -13,23 +13,36 @@ cap = cv2.VideoCapture(0)
 x1,y1,x2,y2 = 200, 150, 500, 250
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-CRNN = model(in_channels=1, num_classes=37)
+CRNN = model(in_channels=1, num_classes=63)
 checkpoint_path = 'checkpoints/crnn.pt'
+
+checkpoint = torch.load(checkpoint_path, map_location=device)
+checkpoint_state = checkpoint['model_state_dict']
+model_state = CRNN.state_dict()
+
+filtered_state = { 
+    k : v for k,v in checkpoint_state.items()
+    if k in model_state and v.shape == model_state[k].shape
+}
+
+model_state.update(filtered_state)
+CRNN.load_state_dict(model_state)
+
+"""
 if not os.path.exists(checkpoint_path): 
     print('No checkpoints found, Training . . .')
     import training
     CRNN = training.CRNN
 else : 
-    checkpoint = torch.load('checkpoints/crnn.pt', map_location=device)
+    checkpoint = torch.load(checkpoint_path, map_location=device)
     CRNN.load_state_dict(checkpoint['model_state_dict'])
+    """
 # This ensures that if training.py saves a checkpoint when validation improves and the first validation check never triggers or never improves, 
 # the file might not exists even after training runs which would lead to FileNotFoundError
 CRNN.to(device)
 CRNN.eval()
 predicted_text = ''
 
-
-# wrap it 
 while True: 
     ret, frame = cap.read()
     if not ret: 
