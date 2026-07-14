@@ -18,11 +18,11 @@ def main():
     criterion = nn.CTCLoss(zero_infinity=True)
     # The optimiser updates model weights using gradients computed by the loss.backward() in training loop 
     # Adam converges faster and requires less manual tuning of the learning parameter than RMSprop 
-    optimiser = optim.Adam(CRNN.parameters(), lr=0.001)
+    optimiser = optim.Adam(CRNN.parameters(), lr=0.0003)
 
     # Learning rate scheduler 
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimiser, mode='min', factor=0.5, patience=3
+        optimiser, mode='min', factor=0.5, patience=2
     )
 
     checkpoints_dir = 'checkpoints'
@@ -39,7 +39,8 @@ def main():
 
     i = 0 
     valid_interval = 500
-    epochs = 30
+    epochs = 15
+
 
     # Periodic validation checks
     # to track accuracy and can be used to decide when to save checkpoints

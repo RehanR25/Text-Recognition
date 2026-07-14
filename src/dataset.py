@@ -43,7 +43,7 @@ def collate_fn(batch) :
 
 
 def _get_dataloader() : 
-    mjsynth = dataset(dataset_name="priyank-m/MJSynth_text_recognition", split_dataset='train', text_column='label', limit=50000)
+    mjsynth = dataset(dataset_name="priyank-m/MJSynth_text_recognition", split_dataset='train', text_column='label', limit=250000)
     svhn = dataset(dataset_name="MiXaiLL76/SVHN_OCR", split_dataset='train', text_column='text', limit=28265)
     iiit5k_train = dataset(dataset_name="MiXaiLL76/IIIT5K_OCR", split_dataset='train', text_column='text', limit=2000 )
 
