@@ -16,7 +16,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 CRNN = model(in_channels=1, num_classes=63)
 checkpoint_path = 'checkpoints/crnn.pt'
 
-checkpoint = torch.load(checkpoint_path, map_location=device)
+checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
 checkpoint_state = checkpoint['model_state_dict']
 model_state = CRNN.state_dict()
 

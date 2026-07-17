@@ -43,7 +43,7 @@ def collate_fn(batch) :
 
 
 def _get_dataloader() : 
-    mjsynth = dataset(dataset_name="priyank-m/MJSynth_text_recognition", split_dataset='train', text_column='label', limit=250000)
+    mjsynth = dataset(dataset_name="priyank-m/MJSynth_text_recognition", split_dataset='train', text_column='label', limit=200000) # change it to 500k
     svhn = dataset(dataset_name="MiXaiLL76/SVHN_OCR", split_dataset='train', text_column='text', limit=28265)
     iiit5k_train = dataset(dataset_name="MiXaiLL76/IIIT5K_OCR", split_dataset='train', text_column='text', limit=2000 )
 
@@ -55,7 +55,7 @@ def _get_dataloader() :
     valid_dataset = ConcatDataset([mjsynth_valid, iiit5k_test])
 
 # changed num_workers and batch size and pin memory 
-    train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True, collate_fn=collate_fn, num_workers=4, pin_memory=True)
+    train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True, collate_fn=collate_fn, num_workers=6, pin_memory=True)
     valid_loader = DataLoader(valid_dataset, batch_size=32, shuffle=False, collate_fn=collate_fn)
 
     return train_loader, valid_loader 

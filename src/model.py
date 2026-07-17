@@ -50,6 +50,9 @@ class model(nn.Module):
         # 2nd recurrent layer
         self.rnn2 = nn.LSTM(input_size=512, hidden_size=256, bidirectional=True)
 
+        # Dropout Layer
+        self.dropout = nn.Dropout(0.3)
+
         self.fc = nn.Linear(512,num_classes)
 
 
@@ -80,6 +83,7 @@ class model(nn.Module):
                              # such that (batch, 512, width) becomes (width, batch, 512)
                              # since nn.LTSM expects (sequence_length, batch, features), not (batch, features, sequence_length)
         x, (hidden, cell) = self.rnn1(x) 
+        x = self.dropout(x)
         x, (hidden, cell) = self.rnn2(x)
         x = self.fc(x)       # applies a fully connected layer
 
