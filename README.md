@@ -20,7 +20,7 @@ A PyTorch implementation of a CRNN (CNN + bidirectional LSTM + CTC loss) that re
 | ```training.py``` | Training loop with validation, checkpointing and early stopping | 
 | ```prediction.py``` | Live webcam inference | 
 
-**Datasets**
+### Datasets
 Loaded from Hugging Face with the datasets library: 
   * Train: MJSynth (pritank-m/MJSynth_text_recognition), SVHN OCR (MiXaiLL76/SVHN_OCR), IIIT5K (MiXaiLL76/IIIT5K_OCR)
   * Validation: MJSynth validation split and IIIT5K test split
